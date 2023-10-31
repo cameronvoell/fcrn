@@ -1,7 +1,8 @@
-import dotenv from "dotenv";
+import { NEYNAR_API_KEY } from '@env';
+
 
 const BASE_URL = "https://api.neynar.com/";
-const API_KEY = process.env.NEYNAR_API_KEY || "";
+const API_KEY = NEYNAR_API_KEY || "";
 
 if (!API_KEY) {
   console.error("API_KEY not found. Make sure to set it in your .env file.");
