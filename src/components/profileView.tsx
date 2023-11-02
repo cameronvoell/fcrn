@@ -1,8 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, KeyboardAvoidingView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Platform,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { fetchUserDataByUsername } from '../api';
-
+import { fetchUserDataByUsername } from "../api";
 
 interface Props {
   fid: string;
@@ -40,40 +48,43 @@ export const ProfileView = ({ fid }: Props) => {
   };
 
   return (
-    <KeyboardAvoidingView 
-    behavior={Platform.OS === "ios" ? "padding" : "height"}
-    style={{ flex: 1 }}
-  >
-    <View style={styles.container}>
-      
-      {userData ? (
-        <>
-          <Image
-            style={styles.profileImage}
-            source={{ uri: userData.pfp.url }}
-          />
-          <Text style={styles.displayName}>{userData.displayName}</Text>
-          <Text>Username: {userData.username}</Text>
-          <Text>fid: {userData.fid}</Text>
-          <Text>Address: {userData.custodyAddress}</Text>
-          <Text>Follower Count: {userData.followerCount}</Text>
-          <Text>Following Count: {userData.followingCount}</Text>
-          <Text>Bio: {userData.profile.bio.text}</Text>
-          <Text>Active Status: {userData.activeStatus}</Text>
-        </>
-      ) : (
-        <Text>Loading...</Text>
-      )}
-      <TextInput
-        style={styles.input}
-        value={usernameInput}
-        onChangeText={setUsernameInput}
-        placeholder="Enter username"
-      />
-      <TouchableOpacity style={styles.fetchButton} onPress={() => fetchData(usernameInput)}>
-        <Text style={styles.fetchButtonText}>Fetch Profile</Text>
-      </TouchableOpacity>
-    </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "android" ? "height" : "height"}
+      keyboardVerticalOffset={Platform.OS === "android" ? 250 : 350}
+      style={{ flex: 1 }}
+    >
+      <View style={styles.container}>
+        {userData ? (
+          <>
+            <Image
+              style={styles.profileImage}
+              source={{ uri: userData.pfp.url }}
+            />
+            <Text style={styles.displayName}>{userData.displayName}</Text>
+            <Text>Username: {userData.username}</Text>
+            <Text>fid: {userData.fid}</Text>
+            <Text>Address: {userData.custodyAddress}</Text>
+            <Text>Follower Count: {userData.followerCount}</Text>
+            <Text>Following Count: {userData.followingCount}</Text>
+            <Text>Bio: {userData.profile.bio.text}</Text>
+            <Text>Active Status: {userData.activeStatus}</Text>
+          </>
+        ) : (
+          <Text>Loading...</Text>
+        )}
+        <TextInput
+          style={styles.input}
+          value={usernameInput}
+          onChangeText={setUsernameInput}
+          placeholder="Enter username"
+        />
+        <TouchableOpacity
+          style={styles.fetchButton}
+          onPress={() => fetchData(usernameInput)}
+        >
+          <Text style={styles.fetchButtonText}>Fetch Profile</Text>
+        </TouchableOpacity>
+      </View>
     </KeyboardAvoidingView>
   );
 };
@@ -107,17 +118,17 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   fetchButton: {
-    backgroundColor: '#f2f2f2', // light gray background
+    backgroundColor: "#f2f2f2", // light gray background
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8, // rounded corners
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 16, // padding from other items
   },
   fetchButtonText: {
-    color: '#007AFF', // blue text
+    color: "#007AFF", // blue text
     fontSize: 16,
-    textTransform: 'none', // not all caps
+    textTransform: "none", // not all caps
   },
 });

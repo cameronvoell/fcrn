@@ -1,21 +1,19 @@
-import { NEYNAR_API_KEY } from '@env';
+import { NEYNAR_API_KEY } from "@env";
 
+const NEYNAY_BASE_URL = "https://api.neynar.com/";
 
-const BASE_URL = "https://api.neynar.com/";
-const API_KEY = NEYNAR_API_KEY || "";
-
-if (!API_KEY) {
+if (!NEYNAR_API_KEY) {
   console.error("API_KEY not found. Make sure to set it in your .env file.");
 }
 
 export const fetchCastsByFid = async (fid: string) => {
   const response = await fetch(
-    `${BASE_URL}v1/farcaster/casts?fid=${fid}&viewerFid=${fid}&limit=25`,
+    `${NEYNAY_BASE_URL}v1/farcaster/casts?fid=${fid}&viewerFid=${fid}&limit=25`,
     {
       method: "GET",
       headers: {
         Accept: "application/json",
-        api_key: API_KEY,
+        api_key: NEYNAR_API_KEY,
       },
     }
   );
@@ -25,12 +23,12 @@ export const fetchCastsByFid = async (fid: string) => {
 
 export const fetchUserDataByUsername = async (username: string) => {
   const response = await fetch(
-    `${BASE_URL}v1/farcaster/user-by-username?username=${username}`,
+    `${NEYNAY_BASE_URL}v1/farcaster/user-by-username?username=${username}`,
     {
       method: "GET",
       headers: {
         Accept: "application/json",
-        api_key: API_KEY,
+        api_key: NEYNAR_API_KEY,
       },
     }
   );
