@@ -1,8 +1,17 @@
 import { Tabs } from "expo-router/tabs";
-import { HomeIcon, UserIcon } from "lucide-react-native";
+import { HomeIcon, UserIcon, KeyIcon } from "lucide-react-native";
 export default function AppLayout() {
   return (
     <Tabs>
+      <Tabs.Screen
+        name="connect-warpcast"
+        options={{
+          title: "Connect Account",
+          tabBarIcon({ color, size }) {
+            return <KeyIcon color={color} size={size} />;
+          },
+        }}
+      />
       <Tabs.Screen
         name="index"
         options={{
