@@ -1,0 +1,13 @@
+{
+  "name": "farcaster-api",
+  "version": "1.0.0",
+  "description": "API options for react-native apps to connect to the Farcaster network",
+  "main": "index.ts",
+  "repository": "https://github.com/cameronvoell/fcrn/tree/main/packages/farcaster-api",
+  "author": "Cameron Voell",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "react-native-svg": "^13.14.0"
+  }
+}
