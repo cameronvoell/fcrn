@@ -12,12 +12,11 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fetchUserDataByUsername } from "../api";
 import * as ed from "@noble/ed25519";
-import { mnemonicToAccount, signTypedData } from "viem/accounts";
+import { mnemonicToAccount } from "viem/accounts";
 import axios from "axios";
 import "react-native-get-random-values";
 import { sha512 } from "@noble/hashes/sha512";
 import { APP_FID, APP_MNEMONIC } from "@env";
-
 
 /*** EIP-712 helper code ***/
 
@@ -56,8 +55,8 @@ export const ConnectView = () => {
       if (storedUsername) {
         setUsernameInput(storedUsername);
         fetchData(storedUsername);
-      // } else if (fid || storedFid) {
-      //   // Fetch by fid here, if needed
+        // } else if (fid || storedFid) {
+        //   // Fetch by fid here, if needed
       }
     };
     fetchUserData();
@@ -110,7 +109,7 @@ export const ConnectView = () => {
       .post<SignedKeyResponse>(
         "https://api.warpcast.com/v2/signed-key-requests",
         body,
-        headers
+        headers,
       )
       .then((response) => {
         // response.data is now typed as SignedKeyResponse

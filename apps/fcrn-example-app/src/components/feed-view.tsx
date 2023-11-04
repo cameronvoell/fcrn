@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, FlatList, Linking } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "expo-router";
-import { fetchCastsByFid } from '../api';  // Adjust the path accordingly
-
+import { fetchCastsByFid } from "../api"; // Adjust the path accordingly
 
 export const FeedView = () => {
   const [casts, setCasts] = useState([]);
