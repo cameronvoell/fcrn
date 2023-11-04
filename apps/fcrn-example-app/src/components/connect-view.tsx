@@ -13,10 +13,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fetchUserDataByUsername } from "../api";
 import * as ed from "@noble/ed25519";
 import { mnemonicToAccount } from "viem/accounts";
-import axios from "axios";
 import "react-native-get-random-values";
 import { sha512 } from "@noble/hashes/sha512";
 import { APP_FID, APP_MNEMONIC } from "@env";
+import { Warpcast } from "farcaster-api";
 
 /*** EIP-712 helper code ***/
 
@@ -32,15 +32,6 @@ const SIGNED_KEY_REQUEST_TYPE = [
   { name: "key", type: "bytes" },
   { name: "deadline", type: "uint256" },
 ] as const;
-
-interface SignedKeyResponse {
-  result: {
-    signedKeyRequest: {
-      token: string;
-      deeplinkUrl: string;
-    };
-  };
-}
 
 export const ConnectView = () => {
   const [userData, setUserData] = useState(null);
@@ -89,38 +80,18 @@ export const ConnectView = () => {
         deadline: BigInt(deadline),
       },
     });
-    const body = {
+
+    // Step 3 => Call warpcast API to get deep link and polling token
+    const signedKeyParams: Warpcast.SignedKeyRequestParams = {
       key: `0x${publicKey}`,
       signature,
       requestFid: APP_FID,
       deadline,
     };
-    const headers = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-    console.log("New signer key: " + `0x${publicKey}`);
-    console.log("Signature: " + signature);
-    console.log("Body: " + body);
-
-    // Step 3 => Call warpcast API to get deep link and polling token
-    axios
-      .post<SignedKeyResponse>(
-        "https://api.warpcast.com/v2/signed-key-requests",
-        body,
-        headers,
-      )
-      .then((response) => {
-        // response.data is now typed as SignedKeyResponse
-        const signedKeyResult = response.data.result.signedKeyRequest;
-        const { token, deeplinkUrl } = signedKeyResult;
-        console.log("Generated deeplink: " + deeplinkUrl); // Now typed as string
-        Linking.openURL(deeplinkUrl);
-      })
-      .catch((error) => {
-        console.error("Error making the request:", error);
-      });
+    const signedKeyResponse = await new Warpcast.API().postSignedKeyRequest(
+      signedKeyParams,
+    );
+    Linking.openURL(signedKeyResponse.deeplinkUrl);
   };
 
   const fetchData = async (username: string) => {
