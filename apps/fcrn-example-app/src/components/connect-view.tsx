@@ -45,13 +45,13 @@ export const ConnectView = () => {
     const deadline = Math.floor(Date.now() / 1000) + 60 * 60 * 24; // signature is valid for 1 day
     const signature = await address.signKeyRequest(
       APP_FID,
-      `0x${key.getPublicKey()}`,
+      key.getPublicKey(),
       deadline,
     );
 
     // Step 3 => Call warpcast API to get deep link and polling token
     const signedKeyParams: Warpcast.SignedKeyRequestParams = {
-      key: `0x${key.getPublicKey()}`,
+      key: key.getPublicKey(),
       signature,
       requestFid: APP_FID,
       deadline,

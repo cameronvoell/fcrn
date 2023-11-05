@@ -16,6 +16,6 @@ export class Key {
 
   public getPublicKey(): string {
     const publicKeyBytes = ed.getPublicKey(this.privateKey);
-    return Buffer.from(publicKeyBytes).toString("hex");
+    return `0x${Buffer.from(publicKeyBytes).toString("hex")}`;
   }
 }
