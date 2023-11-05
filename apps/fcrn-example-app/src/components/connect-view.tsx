@@ -11,27 +11,10 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fetchUserDataByUsername } from "../api";
-import * as ed from "@noble/ed25519";
-import { mnemonicToAccount } from "viem/accounts";
 import "react-native-get-random-values";
-import { sha512 } from "@noble/hashes/sha512";
 import { APP_FID, APP_MNEMONIC } from "@env";
 import { Warpcast } from "farcaster-api";
-
-/*** EIP-712 helper code ***/
-
-const SIGNED_KEY_REQUEST_VALIDATOR_EIP_712_DOMAIN = {
-  name: "Farcaster SignedKeyRequestValidator",
-  version: "1",
-  chainId: 10,
-  verifyingContract: "0x00000000fc700472606ed4fa22623acf62c60553",
-} as const;
-
-const SIGNED_KEY_REQUEST_TYPE = [
-  { name: "requestFid", type: "uint256" },
-  { name: "key", type: "bytes" },
-  { name: "deadline", type: "uint256" },
-] as const;
+import { signer, eth } from "farcaster-crypto";
 
 export const ConnectView = () => {
   const [userData, setUserData] = useState(null);
@@ -55,35 +38,20 @@ export const ConnectView = () => {
 
   const connectWithWarpcast = async () => {
     // Step 1 => App generates a new ed25519 keypair
-    ed.etc.sha512Sync = (...m) => sha512(ed.etc.concatBytes(...m));
-    ed.etc.sha512Async = (...m) => Promise.resolve(ed.etc.sha512Sync(...m));
-
-    const privateKey = ed.utils.randomPrivateKey();
-    const publicKeyBytes = ed.getPublicKey(privateKey);
-    const publicKey = Buffer.from(publicKeyBytes).toString("hex");
+    const key = new signer.Key();
 
     // Step 2 => Generate a Signed Key Request signature with "app FID"
-    const account = mnemonicToAccount(APP_MNEMONIC);
-
-    console.log("Mnemonic translated: " + account.address);
-
+    const address = new eth.Address(APP_MNEMONIC);
     const deadline = Math.floor(Date.now() / 1000) + 60 * 60 * 24; // signature is valid for 1 day
-    const signature = await account.signTypedData({
-      domain: SIGNED_KEY_REQUEST_VALIDATOR_EIP_712_DOMAIN,
-      types: {
-        SignedKeyRequest: SIGNED_KEY_REQUEST_TYPE,
-      },
-      primaryType: "SignedKeyRequest",
-      message: {
-        requestFid: BigInt(APP_FID),
-        key: `0x${publicKey}`,
-        deadline: BigInt(deadline),
-      },
-    });
+    const signature = await address.signKeyRequest(
+      APP_FID,
+      `0x${key.getPublicKey()}`,
+      deadline,
+    );
 
     // Step 3 => Call warpcast API to get deep link and polling token
     const signedKeyParams: Warpcast.SignedKeyRequestParams = {
-      key: `0x${publicKey}`,
+      key: `0x${key.getPublicKey()}`,
       signature,
       requestFid: APP_FID,
       deadline,
