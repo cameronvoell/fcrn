@@ -1,5 +1,6 @@
 import * as ed from "@noble/ed25519";
 import { sha512 } from "@noble/hashes/sha512";
+import type { Hash } from "viem";
 
 export class Key {
   private privateKey: Uint8Array;
@@ -7,15 +8,31 @@ export class Key {
   constructor(existingKey?: Uint8Array) {
     if (existingKey == undefined) {
       ed.etc.sha512Sync = (...m) => sha512(ed.etc.concatBytes(...m));
-      ed.etc.sha512Async = (...m) => Promise.resolve(ed.etc.sha512Sync(...m));
       this.privateKey = ed.utils.randomPrivateKey();
     } else {
       this.privateKey = existingKey;
     }
   }
 
-  public getPublicKey(): string {
+  public getPublicKey(): Hash {
+    ed.etc.sha512Sync = (...m) => sha512(ed.etc.concatBytes(...m));
     const publicKeyBytes = ed.getPublicKey(this.privateKey);
     return `0x${Buffer.from(publicKeyBytes).toString("hex")}`;
   }
+
+  public getPrivateKey(): Uint8Array {
+    return this.privateKey;
+  }
+
+  public getPrivateKeyString(): string {
+    return Uint8ArrayToString(this.privateKey);
+  }
+}
+
+export function Uint8ArrayToString(value: Uint8Array): string {
+  return Buffer.from(value).toString("hex");
+}
+
+export function stringToUint8Array(value: string): Uint8Array {
+  return Uint8Array.from(Buffer.from(value, "hex"));
 }

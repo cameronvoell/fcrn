@@ -10,6 +10,15 @@ export interface SignedKeyRequestParams {
   deadline: number;
 }
 
+export interface SignedKeyRequestResult {
+  token: string;
+  deeplinkUrl: string;
+  key: string;
+  requestFid: number;
+  state: string;
+  userFid: number;
+}
+
 export class API {
   private baseUrl: string = "https://api.warpcast.com/";
 
@@ -45,13 +54,10 @@ export class API {
     return data.result.signedKeyRequest;
   }
 
-  public async fetchUserDataByUsername(username: string): Promise<UserData> {
-    const data = await this.request(
-      `v1/farcaster/user-by-username?username=${username}`,
-      {
-        method: "POST",
-      },
-    );
-    return data.result.user;
+  public async pollForSigner(token: string): Promise<SignedKeyRequestResult> {
+    const data = await this.request(`v2/signed-key-request?token=${token}`, {
+      method: "GET",
+    });
+    return data.result.signedKeyRequest;
   }
 }

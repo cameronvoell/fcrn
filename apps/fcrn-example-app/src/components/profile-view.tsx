@@ -11,6 +11,9 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fetchUserDataByUsername } from "../api";
+import { signer } from "farcaster-crypto";
+import { getSecureValue } from "../utils/secureStorage";
+import { StorageKeys } from "../constants/storageKeys";
 
 interface Props {
   fid: string;
@@ -19,11 +22,13 @@ interface Props {
 export const ProfileView = ({ fid }: Props) => {
   const [userData, setUserData] = useState(null);
   const [usernameInput, setUsernameInput] = useState("");
+  const [connectedFid, setConnectedFid] = useState("");
+  const [publicSigner, setPublicSigner] = useState("");
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const storedUsername = await AsyncStorage.getItem("username");
-      const storedFid = await AsyncStorage.getItem("fid");
+      const storedUsername = await AsyncStorage.getItem(StorageKeys.USERNAME);
+      const storedFid = await AsyncStorage.getItem(StorageKeys.FID);
 
       if (storedUsername) {
         setUsernameInput(storedUsername);
@@ -38,10 +43,23 @@ export const ProfileView = ({ fid }: Props) => {
 
   const fetchData = async (username: string) => {
     try {
+      const connectedFid = await AsyncStorage.getItem(
+        StorageKeys.CONNECTED_FID,
+      );
+      const privateKeyString = await getSecureValue(StorageKeys.SIGNING_KEY);
+      const privateKey = signer.stringToUint8Array(privateKeyString);
+      const signerKey = new signer.Key(privateKey);
+      const publicKey = signerKey.getPublicKey();
+      setConnectedFid(connectedFid || "no connected user");
+      setPublicSigner(publicKey || "no connected user");
+    } catch (error) {
+      console.log("No connected user: ", error);
+    }
+    try {
       const user = await fetchUserDataByUsername(username);
       setUserData(user);
-      AsyncStorage.setItem("username", user.username);
-      AsyncStorage.setItem("fid", String(user.fid));
+      AsyncStorage.setItem(StorageKeys.USERNAME, user.username);
+      AsyncStorage.setItem(StorageKeys.FID, String(user.fid));
     } catch (error) {
       console.error("Error fetching data: ", error);
     }
@@ -54,6 +72,8 @@ export const ProfileView = ({ fid }: Props) => {
       style={{ flex: 1 }}
     >
       <View style={styles.container}>
+        <Text>connected-fid: {connectedFid}</Text>
+        <Text>connected-signer: {publicSigner}</Text>
         {userData ? (
           <>
             <Image

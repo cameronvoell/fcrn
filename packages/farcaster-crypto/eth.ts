@@ -24,7 +24,7 @@ export class Address {
 
   public async signKeyRequest(
     app_fid: number,
-    key: string,
+    key: Hash,
     deadline: number,
   ): Promise<Hash> {
     return await this.account.signTypedData({
@@ -35,7 +35,7 @@ export class Address {
       primaryType: "SignedKeyRequest",
       message: {
         requestFid: BigInt(app_fid),
-        key: `0x${key}`,
+        key,
         deadline: BigInt(deadline),
       },
     });

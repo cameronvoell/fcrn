@@ -11,9 +11,14 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -24,7 +29,11 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-router"],
-    "scheme": "fcrn"
-  }
+    "plugins": [
+      "expo-router"
+    ],
+    "scheme": "fcrn",
+    "sdkVersion": "49.0.0"
+  },
+  "name": "fcrn-example-app"
 }
