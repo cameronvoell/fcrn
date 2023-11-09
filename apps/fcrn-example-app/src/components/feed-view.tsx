@@ -6,13 +6,21 @@ import {
   FlatList,
   Linking,
   RefreshControl,
+  TouchableOpacity,
 } from "react-native";
 import { useFocusEffect } from "expo-router";
 import { CastV2 } from "farcaster-api/neynar/feed-types";
 import { useFetchFeed } from "../hooks/useFetchFeed";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 export const FeedView = () => {
-  const { casts, refreshing, onRefresh, fetchCasts } = useFetchFeed();
+  const { casts, refreshing, connectedFid, onRefresh, fetchCasts } =
+    useFetchFeed();
+
+  const toggleLike = async (castHash) => {
+    // TODO: send like reaction to Hub
+    console.log("Send like reaction to Hub for: " + castHash);
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -21,6 +29,11 @@ export const FeedView = () => {
   );
 
   const renderItem = ({ item }) => {
+    const likeCount = item.reactions.likes.length;
+    const isLiked = item.reactions.likes.some(
+      (like) => String(like.fid) === connectedFid,
+    );
+
     const first10DigitsOfHash = item.hash.slice(0, 10);
     const warpcastUrl = `https://warpcast.com/${
       item.author.username || "unknownUser"
@@ -30,6 +43,9 @@ export const FeedView = () => {
         <View style={styles.castItemRow}>
           <Text style={[styles.castText, styles.flex]}>
             {item.author.username}
+          </Text>
+          <Text style={styles.castTimestamp}>
+            {new Date(item.timestamp).toLocaleString()}
           </Text>
           <View style={styles.warpcastLinkContainer}>
             <Text
@@ -45,9 +61,19 @@ export const FeedView = () => {
         <View style={styles.textContainer}>
           <Text style={styles.castText}>{item.text}</Text>
         </View>
-        <Text style={styles.castTimestamp}>
-          {new Date(item.timestamp).toLocaleString()}
-        </Text>
+        <View style={styles.castItemRow}>
+          <TouchableOpacity
+            onPress={() => toggleLike(item.hash)}
+            style={styles.likeButton}
+          >
+            <FontAwesome
+              name={isLiked ? "heart" : "heart-o"}
+              color={isLiked ? "red" : "black"}
+              size={20}
+            />
+            <Text style={styles.likeCount}>{likeCount}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   };
@@ -96,5 +122,15 @@ const styles = StyleSheet.create({
   warpcastLink: {
     fontSize: 16,
     color: "blue",
+  },
+  likeButton: {
+    flexDirection: "row",
+    padding: 10,
+    alignItems: "center",
+  },
+  likeCount: {
+    marginLeft: 4,
+    fontSize: 16,
+    color: "#333",
   },
 });

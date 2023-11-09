@@ -7,6 +7,7 @@ import { CastV2 } from "farcaster-api/neynar/feed-types";
 export const useFetchFeed = () => {
   const [casts, setCasts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [connectedFid, setConnectedFid] = useState("");
 
   const fetchCasts = useCallback(async () => {
     const now = Date.now();
@@ -18,6 +19,7 @@ export const useFetchFeed = () => {
 
     setRefreshing(true);
     const fid = await AsyncStorage.getItem(StorageKeys.CONNECTED_FID);
+    setConnectedFid(fid);
 
     try {
       let fetchedCasts: CastV2[];
@@ -41,5 +43,5 @@ export const useFetchFeed = () => {
     fetchCasts();
   }, [fetchCasts]);
 
-  return { casts, refreshing, onRefresh, fetchCasts };
+  return { casts, refreshing, connectedFid, onRefresh, fetchCasts };
 };
