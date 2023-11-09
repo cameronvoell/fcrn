@@ -1,52 +1,94 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList, Linking } from "react-native";
+import React, { useState, useCallback } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Linking,
+  RefreshControl,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "expo-router";
-import { fetchCastsByFid } from "../api"; // Adjust the path accordingly
+import { fetchHomeFeedByFid, fetchLoggedOutFeed } from "../api";
+import { CastV2 } from "farcaster-api/neynar/feed-types";
+import { StorageKeys } from "../constants/storageKeys";
 
 export const FeedView = () => {
   const [casts, setCasts] = useState([]);
-  const [username, setUsername] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchCasts = async () => {
-    const [fid, fetchedUsername] = await Promise.all([
-      AsyncStorage.getItem("fid"),
-      AsyncStorage.getItem("username"), // Assuming username is stored under 'username'
-    ]);
+    const now = Date.now();
+    const lastFetchString = await AsyncStorage.getItem(StorageKeys.LAST_FETCH);
+    const lastFetchTime = lastFetchString ? parseInt(lastFetchString, 10) : 0;
+    console.log("attempt refresh: " + now);
+    if (now - lastFetchTime < 600000 && !refreshing) {
+      return;
+    }
 
-    setUsername(fetchedUsername);
+    setRefreshing(true);
+    console.log("refreshing true: " + now);
+    const fid = await AsyncStorage.getItem(StorageKeys.CONNECTED_FID);
 
-    if (fid) {
-      try {
-        const casts = await fetchCastsByFid(fid);
-        setCasts(casts);
-      } catch (error) {
-        console.error("Error fetching casts:", error);
+    try {
+      let fetched_casts: CastV2[];
+      if (fid) {
+        fetched_casts = await fetchHomeFeedByFid(fid);
+      } else {
+        fetched_casts = await fetchLoggedOutFeed();
       }
+      setCasts(fetched_casts);
+      const nowString = Date.now().toString();
+      await AsyncStorage.setItem(StorageKeys.LAST_FETCH, nowString);
+    } catch (error) {
+      console.error("Error fetching casts:", error);
+    } finally {
+      setRefreshing(false);
+      const now2 = Date.now();
+      console.log("refreshing false: " + (now2 - now));
     }
   };
 
-  useFocusEffect(() => {
+  useFocusEffect(
+    useCallback(() => {
+      const fetchCastsAndSetState = async () => {
+        await fetchCasts();
+      };
+      fetchCastsAndSetState();
+      return () => {};
+    }, []),
+  );
+
+  const onRefresh = useCallback(async () => {
+    await AsyncStorage.setItem(StorageKeys.LAST_FETCH, String(0));
+    setRefreshing(true);
     fetchCasts();
-  });
+  }, []);
 
   const renderItem = ({ item }) => {
     const first10DigitsOfHash = item.hash.slice(0, 10);
     const warpcastUrl = `https://warpcast.com/${
-      username || "unknownUser"
+      item.author.username || "unknownUser"
     }/${first10DigitsOfHash}`;
     return (
       <View style={styles.castItem}>
         <View style={styles.castItemRow}>
-          <Text style={styles.castText}>{item.text}</Text>
-          <Text
-            style={styles.warpcastLink}
-            onPress={() => {
-              Linking.openURL(warpcastUrl);
-            }}
-          >
-            WC
+          <Text style={[styles.castText, styles.flex]}>
+            {item.author.username}
           </Text>
+          <View style={styles.warpcastLinkContainer}>
+            <Text
+              style={styles.warpcastLink}
+              onPress={() => {
+                Linking.openURL(warpcastUrl);
+              }}
+            >
+              WC
+            </Text>
+          </View>
+        </View>
+        <View style={styles.textContainer}>
+          <Text style={styles.castText}>{item.text}</Text>
         </View>
         <Text style={styles.castTimestamp}>
           {new Date(item.timestamp).toLocaleString()}
@@ -57,9 +99,12 @@ export const FeedView = () => {
 
   return (
     <FlatList
-      data={casts}
+      data={casts as CastV2[]}
       renderItem={renderItem}
       keyExtractor={(item) => item.hash}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
     />
   );
 };
@@ -79,12 +124,22 @@ const styles = StyleSheet.create({
   castText: {
     fontSize: 16,
   },
-  warpcastLink: {
-    fontSize: 16,
-    color: "blue",
-  },
   castTimestamp: {
     fontSize: 12,
     color: "#888",
+  },
+  flex: {
+    flex: 1,
+  },
+  warpcastLinkContainer: {
+    width: 50,
+    alignItems: "flex-end",
+  },
+  textContainer: {
+    width: "90%",
+  },
+  warpcastLink: {
+    fontSize: 16,
+    color: "blue",
   },
 });

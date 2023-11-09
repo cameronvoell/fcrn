@@ -1,3 +1,5 @@
+import { CastV2 } from "./feed-types";
+
 export interface UserData {
   pfp: string;
   displayName: string;
@@ -43,7 +45,7 @@ export interface Cast {
   author: Author;
   text: string;
   timestamp: string;
-  embeds: string[]; 
+  embeds: string[];
   mentionedProfiles: string[];
   reactions: Reactions;
   recasts: Recasts;
@@ -89,6 +91,27 @@ export class API {
       },
     );
     return data.result.casts;
+  }
+
+  public async fetchFeedByFid(fid: string): Promise<CastV2[]> {
+    const data = await this.request(
+      `v2/farcaster/feed?feed_type=following&fid=${fid}&limit=25&with_recasts=true`,
+      {
+        method: "GET",
+      },
+    );
+    return data.casts;
+  }
+
+  // Show Farcaster channel for now
+  public async fetchLoggedOutFeed(): Promise<CastV2[]> {
+    const data = await this.request(
+      `v2/farcaster/feed?feed_type=filter&filter_type=parent_url&parent_url=chain%3A%2F%2Feip155%3A7777777%2Ferc721%3A0x4f86113fc3e9783cf3ec9a552cbb566716a57628&limit=25&with_recasts=false`,
+      {
+        method: "GET",
+      },
+    );
+    return data.casts;
   }
 
   public async fetchUserDataByUsername(username: string): Promise<UserData> {
