@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback } from "react";
 import {
   View,
   Text,
@@ -7,63 +7,18 @@ import {
   Linking,
   RefreshControl,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "expo-router";
-import { fetchHomeFeedByFid, fetchLoggedOutFeed } from "../api";
 import { CastV2 } from "farcaster-api/neynar/feed-types";
-import { StorageKeys } from "../constants/storageKeys";
+import { useFetchFeed } from "../hooks/useFetchFeed";
 
 export const FeedView = () => {
-  const [casts, setCasts] = useState([]);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const fetchCasts = async () => {
-    const now = Date.now();
-    const lastFetchString = await AsyncStorage.getItem(StorageKeys.LAST_FETCH);
-    const lastFetchTime = lastFetchString ? parseInt(lastFetchString, 10) : 0;
-    console.log("attempt refresh: " + now);
-    if (now - lastFetchTime < 600000 && !refreshing) {
-      return;
-    }
-
-    setRefreshing(true);
-    console.log("refreshing true: " + now);
-    const fid = await AsyncStorage.getItem(StorageKeys.CONNECTED_FID);
-
-    try {
-      let fetched_casts: CastV2[];
-      if (fid) {
-        fetched_casts = await fetchHomeFeedByFid(fid);
-      } else {
-        fetched_casts = await fetchLoggedOutFeed();
-      }
-      setCasts(fetched_casts);
-      const nowString = Date.now().toString();
-      await AsyncStorage.setItem(StorageKeys.LAST_FETCH, nowString);
-    } catch (error) {
-      console.error("Error fetching casts:", error);
-    } finally {
-      setRefreshing(false);
-      const now2 = Date.now();
-      console.log("refreshing false: " + (now2 - now));
-    }
-  };
+  const { casts, refreshing, onRefresh, fetchCasts } = useFetchFeed();
 
   useFocusEffect(
     useCallback(() => {
-      const fetchCastsAndSetState = async () => {
-        await fetchCasts();
-      };
-      fetchCastsAndSetState();
-      return () => {};
+      fetchCasts();
     }, []),
   );
-
-  const onRefresh = useCallback(async () => {
-    await AsyncStorage.setItem(StorageKeys.LAST_FETCH, String(0));
-    setRefreshing(true);
-    fetchCasts();
-  }, []);
 
   const renderItem = ({ item }) => {
     const first10DigitsOfHash = item.hash.slice(0, 10);
