@@ -2,6 +2,8 @@
 
 FCRN - or Farcaster React Native takes inspiration from [Opencast for web](https://github.com/stephancill/opencast), and aims to provide a reference implementation for developers to create mobile apps for farcaster without starting from scratch.
 
+Support development by voting for this project via Prop House PurpleDao retroactive funding: https://prop.house/proposal/8614
+
 ## Build Example App
 
 See Expo docs for machine setup (Node.js, Git, Watchman, etc.): https://docs.expo.dev/get-started/installation/
@@ -16,5 +18,9 @@ APP_MNEMONIC=<MNEUMONIC_PRIVATE_KEY_FOR_APP_FID_CUSTODY_ADDRESS>
 2. From root directory `yarn install` to install repo dependencies
 3. run `yarn dev` to start expo
 4. Follow terminal instructions for testing the app on your iPhone or Android via the Expo Go mobile app.
+
+## The fcrn-example-app currently supports the following functionality:
+
+
 
 
