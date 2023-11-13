@@ -9,14 +9,14 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useFocusEffect } from "expo-router";
-import { CastV2 } from "farcaster-api/neynar/feed-types";
-import { Hub } from "farcaster-api";
+import { Hub } from "@fcrn/api";
 import { useFetchFeed } from "../hooks/useFetchFeed";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { HUB_URL } from "@env";
 import { getSecureValue } from "../utils/secureStorage";
 import { StorageKeys } from "../constants/storageKeys";
 import { signer } from "farcaster-crypto";
+import { Neynar } from "@fcrn/api";
 
 export const FeedView = () => {
   const { casts, refreshing, connectedFid, onRefresh, fetchCasts } =
@@ -59,7 +59,7 @@ export const FeedView = () => {
   );
 
   const renderItem = ({ item }) => {
-    const castV2 = item as CastV2;
+    const castV2 = item as Neynar.FeedTypes.CastV2;
     let likeCount = castV2.reactions.likes.length;
     let isLiked = castV2.reactions.likes.some(
       (like) => String(like.fid) === connectedFid,

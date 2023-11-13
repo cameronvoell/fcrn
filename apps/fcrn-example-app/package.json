@@ -17,7 +17,7 @@
     "expo-router": "^2.0.0",
     "expo-secure-store": "~12.3.1",
     "expo-status-bar": "~1.6.0",
-    "farcaster-api": "*",
+    "@fcrn/api": "*",
     "farcaster-crypto": "*",
     "lucide-react-native": "^0.290.0",
     "react": "18.2.0",

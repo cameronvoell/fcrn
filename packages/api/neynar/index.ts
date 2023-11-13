@@ -1,5 +1,7 @@
 import { CastV2 } from "./feed-types";
 
+export * as FeedTypes from "./feed-types";
+
 export interface UserData {
   pfp: string;
   displayName: string;

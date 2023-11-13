@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AppState, Linking } from "react-native";
-import { Warpcast } from "farcaster-api";
+import { Warpcast } from "@fcrn/api";
 import { signer, eth } from "farcaster-crypto";
 import { APP_FID, APP_MNEMONIC } from "@env";
-import { SignedKeyRequestResult } from "farcaster-api/warpcast";
+import { SignedKeyRequestResult } from "@fcrn/api/warpcast";
 import {
   getSecureValue,
   saveSecureValue,
@@ -109,7 +109,6 @@ export default function useWarpcastConnection(): UseWarpcastConnection {
     // Step 1 => App generates a new ed25519 keypair
     const key = new signer.Key();
     saveSecureValue(StorageKeys.PENDING_KEY, key.getPrivateKeyString());
-
     // Step 2 => Generate a Signed Key Request signature with "app FID"
     const address = new eth.Address(APP_MNEMONIC);
     const deadline = Math.floor(Date.now() / 1000) + 60 * 60 * 24; // signature is valid for 1 day
@@ -118,7 +117,6 @@ export default function useWarpcastConnection(): UseWarpcastConnection {
       key.getPublicKey(),
       deadline,
     );
-
     // Step 3 => Call warpcast API to get deep link and polling token
     const signedKeyParams: Warpcast.SignedKeyRequestParams = {
       key: key.getPublicKey(),

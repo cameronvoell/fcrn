@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fetchHomeFeedByFid, fetchLoggedOutFeed } from "../api";
 import { StorageKeys } from "../constants/storageKeys";
-import { CastV2 } from "farcaster-api/neynar/feed-types";
+import { Neynar } from "@fcrn/api";
 
 export const useFetchFeed = () => {
   const [casts, setCasts] = useState([]);
@@ -22,7 +22,7 @@ export const useFetchFeed = () => {
     setConnectedFid(fid);
 
     try {
-      let fetchedCasts: CastV2[];
+      let fetchedCasts: Neynar.FeedTypes.CastV2[];
       if (fid) {
         fetchedCasts = await fetchHomeFeedByFid(fid);
       } else {

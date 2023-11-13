@@ -1,0 +1,16 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",  
+    "compilerOptions": {
+      "allowJs": true,
+      "esModuleInterop": true,
+      "moduleResolution": "node",
+      "noEmit": true,
+      "resolveJsonModule": true,
+      "skipLibCheck": true,
+      "target": "ESNext",
+      "sourceMap": true,
+      "declaration": true
+    },
+    "include": ["index.ts"],
+    "exclude": ["node_modules", "jest.config.js"]
+  }

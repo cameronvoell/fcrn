@@ -1,4 +1,7 @@
 {
+  "compilerOptions": {
+    "jsx": "react"
+  },
   "extends": "../../tsconfig.json", // Path to the root tsconfig.json
   "include": ["src/**/*"],
   "exclude": ["node_modules"]

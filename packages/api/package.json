@@ -1,0 +1,36 @@
+{
+  "name": "@fcrn/api",
+  "version": "0.1.1",
+  "description": "API options for react-native apps to connect to the Farcaster network",
+  "author": "Cameron Voell",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@farcaster/core": "^0.13.1",
+    "axios": "^1.6.1",
+    "react-native-svg": "^13.14.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0",
+    "@types/react": "~18.2.14",
+    "typescript": "^5.2.2"
+  },
+  "scripts": {
+    "build": "tsup --config tsup.config.ts"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
