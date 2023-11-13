@@ -4,7 +4,6 @@ import { AppState, Linking } from "react-native";
 import { Warpcast } from "@fcrn/api";
 import { signer, eth } from "farcaster-crypto";
 import { APP_FID, APP_MNEMONIC } from "@env";
-import { SignedKeyRequestResult } from "@fcrn/api/warpcast";
 import {
   getSecureValue,
   saveSecureValue,
@@ -64,7 +63,7 @@ export default function useWarpcastConnection(): UseWarpcastConnection {
         console.log("Max polling attempts reached.");
         break;
       }
-      let signedKeyRequestResult: SignedKeyRequestResult = null;
+      let signedKeyRequestResult: Warpcast.SignedKeyRequestResult = null;
       try {
         signedKeyRequestResult = await new Warpcast.API().pollForSigner(token);
       } catch (error) {

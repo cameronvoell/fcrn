@@ -26,7 +26,6 @@ pnpm install @fcrn/api
 import { Warpcast } from "@fcrn/api";
 import { signer, eth } from "@fcrn/crypto";
 import { APP_FID, APP_MNEMONIC } from "@env";
-import { SignedKeyRequestResult } from "@fcrn/api/warpcast";
 
 const connectWithWarpcast = async () => {
     // Step 1 => App generates a new ed25519 keypair
@@ -105,7 +104,7 @@ See [fcrn-example-app](https://github.com/cameronvoell/fcrn/tree/main/apps/fcrn-
 
 ## Feedback
 
-Feel free to open an issue or reach out to me on Farcaster [@cyrcus](https://warpcast.com/cyrcus)
+Feel free to open an issue at https://github.com/cameronvoell/fcrn or reach out to me on Farcaster [@cyrcus](https://warpcast.com/cyrcus)
 
 ## License
 
