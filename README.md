@@ -1,6 +1,6 @@
 # fcrn
 
-Farcaster React Native (or `fcrn`) takes inspiration from [Opencast for web](https://github.com/stephancill/opencast), and aims to provide a reference implementation for developers to create mobile apps for farcaster without starting from scratch.
+**Farcaster React Native** (or `fcrn`) takes inspiration from [Opencast for web](https://github.com/stephancill/opencast), and aims to provide a reference implementation for developers to create mobile apps for farcaster without starting from scratch.
 
 Support development by voting for this project via Prop House PurpleDao retroactive funding: https://prop.house/proposal/8614
 
