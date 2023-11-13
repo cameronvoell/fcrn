@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,42 +10,79 @@ import {
 } from "react-native";
 import { useFocusEffect } from "expo-router";
 import { CastV2 } from "farcaster-api/neynar/feed-types";
+import { Hub } from "farcaster-api";
 import { useFetchFeed } from "../hooks/useFetchFeed";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import { HUB_URL } from "@env";
+import { getSecureValue } from "../utils/secureStorage";
+import { StorageKeys } from "../constants/storageKeys";
+import { signer } from "farcaster-crypto";
 
 export const FeedView = () => {
   const { casts, refreshing, connectedFid, onRefresh, fetchCasts } =
     useFetchFeed();
 
-  const toggleLike = async (castHash) => {
-    // TODO: send like reaction to Hub
-    console.log("Send like reaction to Hub for: " + castHash);
+  const [likeStatus, setLikeStatus] = useState({});
+
+  const toggleLike = async (castHash, isLiked, authorFid, likeCount) => {
+    setLikeStatus({
+      ...likeStatus,
+      [castHash]: {
+        isLiked: !isLiked,
+        likeCount: isLiked ? likeCount - 1 : likeCount + 1,
+      },
+    });
+    console.log(HUB_URL);
+    const hubApi = new Hub.API(HUB_URL);
+    const signer_key_string = await getSecureValue(StorageKeys.SIGNING_KEY);
+    const signer_key = signer.stringToUint8Array(signer_key_string);
+    await hubApi.likeCast(
+      authorFid,
+      castHash,
+      signer_key,
+      isLiked,
+      parseInt(connectedFid),
+    );
   };
+
+  useEffect(() => {
+    if (casts.length === 0) {
+      onRefresh();
+    }
+  }, [casts, onRefresh]);
 
   useFocusEffect(
     useCallback(() => {
       fetchCasts();
+      setLikeStatus({});
     }, []),
   );
 
   const renderItem = ({ item }) => {
-    const likeCount = item.reactions.likes.length;
-    const isLiked = item.reactions.likes.some(
+    const castV2 = item as CastV2;
+    let likeCount = castV2.reactions.likes.length;
+    let isLiked = castV2.reactions.likes.some(
       (like) => String(like.fid) === connectedFid,
     );
 
-    const first10DigitsOfHash = item.hash.slice(0, 10);
+    // Override with local state if it exists
+    if (likeStatus[castV2.hash]) {
+      isLiked = likeStatus[castV2.hash].isLiked;
+      likeCount = likeStatus[castV2.hash].likeCount;
+    }
+
+    const first10DigitsOfHash = castV2.hash.slice(0, 10);
     const warpcastUrl = `https://warpcast.com/${
-      item.author.username || "unknownUser"
+      castV2.author.username || "unknownUser"
     }/${first10DigitsOfHash}`;
     return (
       <View style={styles.castItem}>
         <View style={styles.castItemRow}>
           <Text style={[styles.castText, styles.flex]}>
-            {item.author.username}
+            {castV2.author.username}
           </Text>
           <Text style={styles.castTimestamp}>
-            {new Date(item.timestamp).toLocaleString()}
+            {new Date(castV2.timestamp).toLocaleString()}
           </Text>
           <View style={styles.warpcastLinkContainer}>
             <Text
@@ -59,11 +96,13 @@ export const FeedView = () => {
           </View>
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.castText}>{item.text}</Text>
+          <Text style={styles.castText}>{castV2.text}</Text>
         </View>
         <View style={styles.castItemRow}>
           <TouchableOpacity
-            onPress={() => toggleLike(item.hash)}
+            onPress={() =>
+              toggleLike(castV2.hash, isLiked, castV2.author.fid, likeCount)
+            }
             style={styles.likeButton}
           >
             <FontAwesome

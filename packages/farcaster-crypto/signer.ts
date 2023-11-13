@@ -1,5 +1,6 @@
 import * as ed from "@noble/ed25519";
 import { sha512 } from "@noble/hashes/sha512";
+import { hexToBytes } from "@noble/hashes/utils";
 import type { Hash } from "viem";
 
 export class Key {
@@ -34,5 +35,5 @@ export function Uint8ArrayToString(value: Uint8Array): string {
 }
 
 export function stringToUint8Array(value: string): Uint8Array {
-  return Uint8Array.from(Buffer.from(value, "hex"));
+  return hexToBytes(value);
 }
