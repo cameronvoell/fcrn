@@ -1,6 +1,6 @@
 # fcrn
 
-FCRN - or Farcaster React Native takes inspiration from [Opencast for web](https://github.com/stephancill/opencast), and aims to provide a reference implementation for developers to create mobile apps for farcaster without starting from scratch.
+Farcaster React Native (or `fcrn`) takes inspiration from [Opencast for web](https://github.com/stephancill/opencast), and aims to provide a reference implementation for developers to create mobile apps for farcaster without starting from scratch.
 
 Support development by voting for this project via Prop House PurpleDao retroactive funding: https://prop.house/proposal/8614
 
@@ -35,6 +35,23 @@ APP_MNEMONIC=<MNEUMONIC_PRIVATE_KEY_FOR_APP_FID_CUSTODY_ADDRESS>
 | Feed View  | User View |
 | ------------- | ------------- |
 | <img src="https://github.com/cameronvoell/fcrn/assets/1103838/5e7d5316-9e1e-4302-b336-f3da5f66a05c" width="250"> | <img src="https://github.com/cameronvoell/fcrn/assets/1103838/fc213654-fdf3-47a1-a5e6-0e3dac104fbc" width="250"> |
+
+## Integrate into an existing app
+
+The following npm packages are available to install via your chosen package manager:
+
+- [@fcrn/api](https://github.com/cameronvoell/fcrn/tree/main/packages/api)
+- [@fcrn/crypto](https://github.com/cameronvoell/fcrn/tree/main/packages/crypto)
+
+Click to see package README.md's and usage instructions.
+
+## Feedback
+
+Feel free to open an issue at https://github.com/cameronvoell/fcrn or reach out to me on Farcaster [@cyrcus](https://warpcast.com/cyrcus)
+
+## License
+
+MIT License
 
 
 
