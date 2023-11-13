@@ -13,9 +13,9 @@ APIs for interacting with the Farcaster network, targeting React Native use case
 Install @fcrn/api with the package manager of your choice
 
 ```
-npm install @farcaster/hub-nodejs
-yarn add @farcaster/hub-nodejs
-pnpm install @farcaster/hub-nodejs
+npm install @fcrn/api
+yarn add @fcrn/api
+pnpm install @fcrn/api
 ```
 
 ## Example Usage
