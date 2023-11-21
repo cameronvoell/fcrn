@@ -4,6 +4,24 @@
 
 Support development by voting for this project via Prop House PurpleDao retroactive funding: https://prop.house/proposal/8614
 
+## Features Roadmap
+
+- [x] Register Signer via Warpcast API
+- [x] Persist Signer in encrypted storage
+- [ ] Write to Hub Actions
+  - [x] Signer flow working for Hub writes
+  - [x] Like Button
+  - [ ] Create Cast
+  - [ ] Recast
+- [x] Reading Data via Neynar API
+  - [x] User Profiles
+  - [x] Feed API
+- [ ] Reading Data via Replicator 
+- [ ] Profile Customization
+- [ ] Feed Support
+  - [x] Initial UI, API support
+
+
 ## Build Example App
 
 See Expo docs for machine setup (Node.js, Git, Watchman, etc.): https://docs.expo.dev/get-started/installation/

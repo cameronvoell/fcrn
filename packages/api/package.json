@@ -19,6 +19,7 @@
   "license": "MIT",
   "dependencies": {
     "@farcaster/core": "^0.13.1",
+    "@fcrn/crypto": "*",
     "axios": "^1.6.1"
   },
   "devDependencies": {

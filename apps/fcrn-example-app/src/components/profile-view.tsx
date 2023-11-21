@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fetchUserDataByUsername } from "../api";
-import { signer } from "farcaster-crypto";
+import { Signer } from "@fcrn/crypto";
 import { getSecureValue } from "../utils/secureStorage";
 import { StorageKeys } from "../constants/storageKeys";
 
@@ -47,8 +47,8 @@ export const ProfileView = ({ fid }: Props) => {
         StorageKeys.CONNECTED_FID,
       );
       const privateKeyString = await getSecureValue(StorageKeys.SIGNING_KEY);
-      const privateKey = signer.stringToUint8Array(privateKeyString);
-      const signerKey = new signer.Key(privateKey);
+      const privateKey = Signer.stringToUint8Array(privateKeyString);
+      const signerKey = new Signer.Key(privateKey);
       const publicKey = signerKey.getPublicKey();
       setConnectedFid(connectedFid || "no connected user");
       setPublicSigner(publicKey || "no connected user");

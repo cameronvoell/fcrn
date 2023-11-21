@@ -3,4 +3,5 @@ declare module "@env" {
   export const APP_FID: number;
   export const APP_MNEMONIC: string;
   export const HUB_URL: string;
+  export const REPLICATOR_REST_API: string;
 }

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AppState, Linking } from "react-native";
 import { Warpcast } from "@fcrn/api";
-import { signer, eth } from "farcaster-crypto";
+import { Signer, Eth } from "@fcrn/crypto";
 import { APP_FID, APP_MNEMONIC } from "@env";
 import {
   getSecureValue,
@@ -106,10 +106,10 @@ export default function useWarpcastConnection(): UseWarpcastConnection {
 
   const connectWithWarpcast = async () => {
     // Step 1 => App generates a new ed25519 keypair
-    const key = new signer.Key();
+    const key = new Signer.Key();
     saveSecureValue(StorageKeys.PENDING_KEY, key.getPrivateKeyString());
     // Step 2 => Generate a Signed Key Request signature with "app FID"
-    const address = new eth.Address(APP_MNEMONIC);
+    const address = new Eth.Address(APP_MNEMONIC);
     const deadline = Math.floor(Date.now() / 1000) + 60 * 60 * 24; // signature is valid for 1 day
     const signature = await address.signKeyRequest(
       APP_FID,

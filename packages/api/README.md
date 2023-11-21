@@ -4,7 +4,7 @@ APIs for interacting with the Farcaster network, targeting React Native use case
 
 ## Features
 
-- Register a signer via Warpcast app deeplink + API
+- Register a Signer via Warpcast app deeplink + API
 - Fetch customized feeds or channels via the Neynar API
 - Publish to the Farcaster network via your registered Signer and direct Hub connection
 
@@ -24,15 +24,15 @@ pnpm install @fcrn/api
 
 ```typescript
 import { Warpcast } from "@fcrn/api";
-import { signer, eth } from "@fcrn/crypto";
+import { Signer, Eth } from "@fcrn/crypto";
 import { APP_FID, APP_MNEMONIC } from "@env";
 
 const connectWithWarpcast = async () => {
     // Step 1 => App generates a new ed25519 keypair
-    const key = new signer.Key();
+    const key = new Signer.Key();
     saveSecureValue(StorageKeys.PENDING_KEY, key.getPrivateKeyString());
     // Step 2 => Generate a Signed Key Request signature with "app FID"
-    const address = new eth.Address(APP_MNEMONIC);
+    const address = new Eth.Address(APP_MNEMONIC);
     const deadline = Math.floor(Date.now() / 1000) + 60 * 60 * 24; // signature is valid for 1 day
     const signature = await address.signKeyRequest(
       APP_FID,

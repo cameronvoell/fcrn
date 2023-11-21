@@ -8,7 +8,7 @@ export interface CastAuthor {
   profile: {
     bio: {
       text: string;
-      mentioned_profiles: any[]; // Define a more specific type if possible
+      mentioned_profiles: string[]; // Define a more specific type if possible
     };
   };
   follower_count: number;
@@ -33,15 +33,15 @@ export interface CastV2 {
   author: CastAuthor;
   text: string;
   timestamp: string; // or Date if you will convert string to Date object
-  embeds: any[]; // Define a more specific type if possible
+  embeds: string[]; // Define a more specific type if possible
   reactions: {
     likes: Like[]; // Define a more specific type if possible
-    recasts: any[]; // Define a more specific type if possible
+    recasts: string[]; // Define a more specific type if possible
   };
   replies: {
     count: number;
   };
-  mentioned_profiles: any[]; // Define a more specific type if possible
+  mentioned_profiles: string[]; // Define a more specific type if possible
 }
 
 export interface FeedResponse {

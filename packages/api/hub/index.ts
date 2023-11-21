@@ -8,7 +8,7 @@ import {
   toFarcasterTime,
 } from "@farcaster/core";
 import axios from "axios";
-import { stringToUint8Array } from "farcaster-crypto/signer";
+import { Signer } from "@fcrn/crypto";
 
 export class API {
   private baseUrl: string;
@@ -62,5 +62,5 @@ export class API {
 }
 
 function convertCastHashStringToUint8Array(hash: string): Uint8Array {
-  return stringToUint8Array(hash.slice(2));
+  return Signer.stringToUint8Array(hash.slice(2));
 }
