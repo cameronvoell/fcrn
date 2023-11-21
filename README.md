@@ -52,7 +52,7 @@ APP_MNEMONIC=<MNEUMONIC_PRIVATE_KEY_FOR_APP_FID_CUSTODY_ADDRESS>
 
 | Feed View  | User View |
 | ------------- | ------------- |
-| <img src="https://github.com/cameronvoell/fcrn/assets/1103838/5e7d5316-9e1e-4302-b336-f3da5f66a05c" width="250"> | <img src="https://github.com/cameronvoell/fcrn/assets/1103838/fc213654-fdf3-47a1-a5e6-0e3dac104fbc" width="250"> |
+| <img src="https://github.com/cameronvoell/fcrn/assets/1103838/5e6fb5fd-858c-4313-9880-e72d5ff3df2a" width="250"> | <img src="https://github.com/cameronvoell/fcrn/assets/1103838/fc213654-fdf3-47a1-a5e6-0e3dac104fbc" width="250"> |
 
 ## Integrate into an existing app
 
