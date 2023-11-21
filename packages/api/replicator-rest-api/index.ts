@@ -12,6 +12,10 @@ export interface Reaction {
   reaction_target_url: string | null;
 }
 
+export interface Embed {
+  url: string;
+}
+
 export interface Cast {
   id: string;
   cast_created_at: string;
@@ -26,9 +30,9 @@ export interface Cast {
   cast_root_parent_url: string | null;
   cast_parent_url: string | null;
   cast_text: string;
-  cast_embeds: string[]; // Specify the type instead of any if you have a defined structure for embeds
-  cast_mentions: string[]; // Same as above, replace any with a specific type if applicable
-  cast_mentions_positions: string[]; // Replace any with a specific type if needed
+  cast_embeds: Embed[];
+  cast_mentions: any[]; // Replace any with a specific type if applicable
+  cast_mentions_positions: any[]; // Replace any with a specific type if needed
   reactions: Reaction[];
   username: string;
 }
@@ -69,7 +73,7 @@ export class API {
 
   public async fetchChannel(channel: string): Promise<Cast[]> {
     const data = await this.request(
-      `/cast_with_reactions_username?cast_root_parent_url=eq.${ChannelMapping[channel]}&order=cast_timestamp.desc&limit=15`,
+      `/cast_with_reactions_username?cast_root_parent_url=eq.${ChannelMapping[channel]}&order=cast_timestamp.desc&limit=25`,
       {
         method: "GET",
       },

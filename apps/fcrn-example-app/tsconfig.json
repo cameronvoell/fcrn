@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "jsx": "react"
+    "jsx": "react",
+    "esModuleInterop": true
   },
   "extends": "../../tsconfig.json", // Path to the root tsconfig.json
   "include": ["src/**/*"],
-  "exclude": ["node_modules"],
-  "esModuleInterop": true,
+  "exclude": ["node_modules"]
 }

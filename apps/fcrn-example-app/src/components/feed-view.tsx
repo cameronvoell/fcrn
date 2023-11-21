@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,8 +6,10 @@ import {
   FlatList,
   Linking,
   RefreshControl,
+  Image,
   TouchableOpacity,
 } from "react-native";
+import { WebView } from "react-native-webview";
 import { useFocusEffect } from "expo-router";
 import { Hub } from "@fcrn/api";
 import { useFetchFeed } from "../hooks/useFetchFeed";
@@ -17,6 +19,15 @@ import { getSecureValue } from "../utils/secureStorage";
 import { StorageKeys } from "../constants/storageKeys";
 import { Signer } from "@fcrn/crypto";
 import { ReplicatorApi } from "@fcrn/api";
+
+const isImage = (url) => {
+  return /\.(gif|png|jpg)$/i.test(url);
+};
+
+// Utility function to escape special characters in the URL for regex
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 export const FeedView = () => {
   const [selectedFeed, setSelectedFeed] = useState("farcaster"); // Default feed
@@ -77,6 +88,10 @@ export const FeedView = () => {
     }, []),
   );
 
+  useEffect(() => {
+    fetchCasts(selectedFeed); // Fetch data when the component mounts
+  }, []);
+
   const renderItem = ({ item }) => {
     const castV2 = item as ReplicatorApi.Cast;
     let likeCount = castV2.reactions.length;
@@ -89,7 +104,11 @@ export const FeedView = () => {
       isLiked = likeStatus[castV2.cast_hash].isLiked;
       likeCount = likeStatus[castV2.cast_hash].likeCount;
     }
-
+    if (castV2.cast_embeds && castV2.cast_embeds.length > 0) {
+      const urlRegex = new RegExp(escapeRegExp(castV2.cast_embeds[0].url), "g");
+      const updatedText = castV2.cast_text.replace(urlRegex, "");
+      castV2.cast_text = updatedText;
+    }
     const first10DigitsOfHash = "0" + castV2.cast_hash.slice(1, 10);
     const warpcastUrl = `https://warpcast.com/${
       castV2.username || "unknownUser"
@@ -116,6 +135,37 @@ export const FeedView = () => {
         <View>
           <Text style={styles.castText}>{castV2.cast_text}</Text>
         </View>
+        {castV2.cast_embeds && castV2.cast_embeds.length > 0 && (
+          <View>
+            {isImage(castV2.cast_embeds[0].url) ? (
+              <Image
+                source={{ uri: castV2.cast_embeds[0].url }}
+                style={{ width: "100%", height: 400 }}
+                resizeMode="contain"
+              />
+            ) : (
+              <View style={{ width: "100%", height: 300, flex: 1 }}>
+                <WebView
+                  source={{
+                    uri: castV2.cast_embeds[0].url,
+                  }}
+                  style={{ width: "100%", height: 300 }}
+                />
+                <TouchableOpacity
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: "transparent",
+                  }}
+                  onPress={() => Linking.openURL(castV2.cast_embeds[0].url)}
+                />
+              </View>
+            )}
+          </View>
+        )}
         <View style={styles.castItemRow}>
           <TouchableOpacity
             onPress={() =>
@@ -144,7 +194,7 @@ export const FeedView = () => {
         style={styles.flatlist}
         data={casts as ReplicatorApi.Cast[]}
         renderItem={renderItem}
-        keyExtractor={(item) => item.hash}
+        keyExtractor={(item) => item.cast_hash}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
