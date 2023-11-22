@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: "#007bff",
     paddingHorizontal: 10,
-    marginHorizontal: 5,
+    marginHorizontal: 4,
     marginVertical: 5,
     minWidth: 40,
   },
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 20,
     paddingHorizontal: 10,
-    marginHorizontal: 5,
+    marginHorizontal: 4,
     marginVertical: 5,
     backgroundColor: "#ff69b4", // pinkish color for selected button
     minWidth: 40,

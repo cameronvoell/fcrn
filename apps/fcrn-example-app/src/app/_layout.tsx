@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router/tabs";
 import React = require("react");
-import { HomeIcon, UserIcon, KeyIcon } from "lucide-react-native";
+import { HomeIcon, UserIcon, MessageSquareIcon } from "lucide-react-native";
 export default function AppLayout() {
   return (
     <Tabs>
@@ -24,11 +24,11 @@ export default function AppLayout() {
         }}
       />
       <Tabs.Screen
-        name="connect-warpcast"
+        name="messages"
         options={{
-          title: "Connect Account",
+          title: "Messages",
           tabBarIcon({ color, size }) {
-            return <KeyIcon color={color} size={size} />;
+            return <MessageSquareIcon color={color} size={size} />;
           },
         }}
       />

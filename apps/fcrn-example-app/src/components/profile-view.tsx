@@ -4,16 +4,15 @@ import {
   Text,
   StyleSheet,
   Image,
-  Platform,
-  TextInput,
   TouchableOpacity,
-  KeyboardAvoidingView,
+  ActivityIndicator,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fetchUserDataByUsername } from "../api";
 import { Signer } from "@fcrn/crypto";
 import { getSecureValue } from "../utils/secureStorage";
 import { StorageKeys } from "../constants/storageKeys";
+import useWarpcastConnection from "../hooks/useWarpcastConnection";
 
 interface Props {
   fid: string;
@@ -21,9 +20,15 @@ interface Props {
 
 export const ProfileView = ({ fid }: Props) => {
   const [userData, setUserData] = useState(null);
-  const [usernameInput, setUsernameInput] = useState("");
-  const [connectedFid, setConnectedFid] = useState("");
   const [publicSigner, setPublicSigner] = useState("");
+
+  const {
+    connectedUserFid,
+    warpcastConnected,
+    isPolling,
+    connectWithWarpcast,
+    disconnectFromWarpcast,
+  } = useWarpcastConnection();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -31,7 +36,6 @@ export const ProfileView = ({ fid }: Props) => {
       const storedFid = await AsyncStorage.getItem(StorageKeys.FID);
 
       if (storedUsername) {
-        setUsernameInput(storedUsername);
         fetchData(storedUsername);
       } else if (fid || storedFid) {
         // Fetch by fid here, if needed
@@ -43,14 +47,10 @@ export const ProfileView = ({ fid }: Props) => {
 
   const fetchData = async (username: string) => {
     try {
-      const connectedFid = await AsyncStorage.getItem(
-        StorageKeys.CONNECTED_FID,
-      );
       const privateKeyString = await getSecureValue(StorageKeys.SIGNING_KEY);
       const privateKey = Signer.stringToUint8Array(privateKeyString);
       const signerKey = new Signer.Key(privateKey);
       const publicKey = signerKey.getPublicKey();
-      setConnectedFid(connectedFid || "no connected user");
       setPublicSigner(publicKey || "no connected user");
     } catch (error) {
       console.log("No connected user: ", error);
@@ -66,46 +66,56 @@ export const ProfileView = ({ fid }: Props) => {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "android" ? "height" : "height"}
-      keyboardVerticalOffset={Platform.OS === "android" ? 250 : 350}
-      style={{ flex: 1 }}
-    >
+    <View style={styles.container}>
+      {userData ? (
+        <>
+          <Image
+            style={styles.profileImage}
+            source={{ uri: userData.pfp.url }}
+          />
+          <Text style={styles.displayName}>{userData.displayName}</Text>
+          <Text>Username: {userData.username}</Text>
+          <Text>fid: {userData.fid}</Text>
+          <Text>Address: {userData.custodyAddress}</Text>
+          <Text>Follower Count: {userData.followerCount}</Text>
+          <Text>Following Count: {userData.followingCount}</Text>
+          <Text>Bio: {userData.profile.bio.text}</Text>
+          <Text>Active Status: {userData.activeStatus}</Text>
+        </>
+      ) : (
+        <Text>Loading...</Text>
+      )}
       <View style={styles.container}>
-        <Text>connected-fid: {connectedFid}</Text>
-        <Text>connected-signer: {publicSigner}</Text>
-        {userData ? (
+        {warpcastConnected && (
           <>
-            <Image
-              style={styles.profileImage}
-              source={{ uri: userData.pfp.url }}
-            />
-            <Text style={styles.displayName}>{userData.displayName}</Text>
-            <Text>Username: {userData.username}</Text>
-            <Text>fid: {userData.fid}</Text>
-            <Text>Address: {userData.custodyAddress}</Text>
-            <Text>Follower Count: {userData.followerCount}</Text>
-            <Text>Following Count: {userData.followingCount}</Text>
-            <Text>Bio: {userData.profile.bio.text}</Text>
-            <Text>Active Status: {userData.activeStatus}</Text>
+            <Text>Your Warpcast account {connectedUserFid} is connected!</Text>
+            <TouchableOpacity
+              style={styles.disconnectButton}
+              onPress={disconnectFromWarpcast}
+            >
+              <Text style={styles.disconnectButtonText}>
+                Disconnect from Warpcast
+              </Text>
+            </TouchableOpacity>
+            <Text>connected-signer: {publicSigner}</Text>
           </>
-        ) : (
-          <Text>Loading...</Text>
         )}
-        <TextInput
-          style={styles.input}
-          value={usernameInput}
-          onChangeText={setUsernameInput}
-          placeholder="Enter username"
-        />
-        <TouchableOpacity
-          style={styles.fetchButton}
-          onPress={() => fetchData(usernameInput)}
-        >
-          <Text style={styles.fetchButtonText}>Fetch Profile</Text>
-        </TouchableOpacity>
+        {!warpcastConnected && (
+          <TouchableOpacity
+            style={styles.fetchButton}
+            onPress={() => connectWithWarpcast()}
+          >
+            <Text style={styles.fetchButtonText}>Connect with Warpcast</Text>
+          </TouchableOpacity>
+        )}
+        {isPolling && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#0000ff" />
+            <Text>Polling for Warpcast connection...</Text>
+          </View>
+        )}
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -150,5 +160,22 @@ const styles = StyleSheet.create({
     color: "#007AFF", // blue text
     fontSize: 16,
     textTransform: "none", // not all caps
+  },
+  disconnectButton: {
+    // Add styles for your disconnect button here
+    backgroundColor: "red",
+    padding: 10,
+    marginTop: 10,
+    borderRadius: 5,
+  },
+  disconnectButtonText: {
+    color: "white",
+    textAlign: "center",
+  },
+  loadingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 10,
   },
 });
