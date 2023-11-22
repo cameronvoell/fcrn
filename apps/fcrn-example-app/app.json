@@ -35,7 +35,15 @@
       "expo-router"
     ],
     "scheme": "fcrn",
-    "sdkVersion": "49.0.0"
+    "sdkVersion": "49.0.0",
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "a3042d56-a850-4157-b00e-6a4d49c58604"
+      }
+    }
   },
   "name": "fcrn-example-app"
 }

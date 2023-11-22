@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -7,33 +7,44 @@ import {
   FlatList,
   Text,
 } from "react-native";
-import { Client } from "@xmtp/react-native-sdk";
+import * as XMTP from "@xmtp/react-native-sdk";
 import { Eth } from "@fcrn/crypto";
 import { APP_MNEMONIC } from "@env";
 
-
-
 export const MessagesView = () => {
-  const [client, setClient] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const [client, setClient] = useState<XMTP.Client>(null);
+  const [messages, setMessages] = useState<XMTP.DecodedMessage[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [recipientAddress, setRecipientAddress] = useState(""); // The Ethereum address you want to message
+  const [activeConversation, setActiveConversation] =
+    useState<XMTP.Conversation>(null);
+
+  const flatListRef = useRef<FlatList>();
+
   // Initialize XMTP client
   useEffect(() => {
     async function initXMTP() {
       const signer = new Eth.Address(APP_MNEMONIC); // Replace with your method to get the wallet signer
-      const xmtpClient = await Client.create(signer);
+      const xmtpClient = await XMTP.Client.create(signer, {
+        env: "production",
+      });
       setClient(xmtpClient);
     }
-
     initXMTP();
   }, []);
 
   // Function to start a conversation and fetch messages
   const startConversation = async () => {
     if (client) {
+      console.log("Starting conversation with", recipientAddress);
       const conversation =
         await client.conversations.newConversation(recipientAddress);
+      setActiveConversation(conversation);
+      conversation.streamMessages(async (message) => {
+        const conversationMessages = await conversation.messages();
+        messages.push(message);
+        setMessages(conversationMessages);
+      });
       const conversationMessages = await conversation.messages();
       setMessages(conversationMessages);
     }
@@ -42,11 +53,26 @@ export const MessagesView = () => {
   // Function to send a message
   const sendMessage = async () => {
     if (client && inputMessage) {
-      const conversation =
-        await client.conversations.newConversation(recipientAddress);
-      await conversation.send(inputMessage);
+      await activeConversation.send(inputMessage);
       setInputMessage(""); // Clear input after sending
     }
+  };
+
+  const renderItem = ({ item }) => {
+    const decodedMessage = item as XMTP.DecodedMessage;
+    const senderAddress = decodedMessage.senderAddress;
+    const shortAddress = `${senderAddress.substring(
+      0,
+      5,
+    )}...${senderAddress.substring(senderAddress.length - 5)}`;
+
+    return (
+      <View style={styles.messageItem}>
+        <Text>
+          {shortAddress}: {decodedMessage.content.text}
+        </Text>
+      </View>
+    );
   };
 
   return (
@@ -59,9 +85,11 @@ export const MessagesView = () => {
       />
       <Button title="Start Conversation" onPress={startConversation} />
       <FlatList
+        ref={flatListRef}
         data={messages}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <Text>{item.content}</Text>}
+        renderItem={renderItem}
+        inverted
       />
       <TextInput
         style={styles.input}
@@ -87,5 +115,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "gray",
     marginBottom: 10,
+  },
+  messageItem: {
+    // ... styling for each message item
   },
 });

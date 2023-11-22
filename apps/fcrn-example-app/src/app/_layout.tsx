@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router/tabs";
-import React = require("react");
+import React from "react";
 import { HomeIcon, UserIcon, MessageSquareIcon } from "lucide-react-native";
 export default function AppLayout() {
   return (

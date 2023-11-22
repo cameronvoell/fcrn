@@ -1,4 +1,4 @@
-/*** EIP-712 helper code ***/
+import "@ethersproject/shims";
 import { mnemonicToAccount, HDAccount } from "viem/accounts";
 import { Signer } from "@ethersproject/abstract-signer";
 import { Bytes } from "@ethersproject/bytes";
@@ -29,8 +29,15 @@ function convertBytesToByteArray(bytes: Bytes): Uint8Array {
 }
 
 export class Address extends Signer {
+  private account: HDAccount;
+
+  constructor(mnemonic: string) {
+    super();
+    this.account = mnemonicToAccount(mnemonic);
+  }
+
   getAddress(): Promise<string> {
-    throw new Error("Method not implemented.");
+    return Promise.resolve(this.account.address);
   }
 
   signMessage(message: string | Bytes): Promise<string> {
@@ -42,17 +49,13 @@ export class Address extends Signer {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   signTransaction(_transaction): Promise<string> {
     throw new Error("Method not implemented.");
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   connect(_provider): Signer {
     throw new Error("Method not implemented.");
-  }
-  private account: HDAccount;
-
-  constructor(mnemonic: string) {
-    super();
-    this.account = mnemonicToAccount(mnemonic);
   }
 
   public getAddressString(): string {
