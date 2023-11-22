@@ -1,6 +1,7 @@
 import React, { useCallback, useState, useEffect } from "react";
 import {
   View,
+  Modal,
   Text,
   StyleSheet,
   FlatList,
@@ -8,6 +9,7 @@ import {
   RefreshControl,
   Image,
   TouchableOpacity,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { WebView } from "react-native-webview";
 import { useFocusEffect } from "expo-router";
@@ -33,30 +35,106 @@ export const FeedView = () => {
   const [selectedFeed, setSelectedFeed] = useState("farcaster"); // Default feed
   const { casts, refreshing, connectedFid, onRefresh, fetchCasts } =
     useFetchFeed();
-
   const [likeStatus, setLikeStatus] = useState({});
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [modalOptions, setModalOptions] = useState([]);
+  const [selectedButtonIndex, setSelectedButtonIndex] = useState(null);
+  const [buttonsText, setButtonsText] = useState([
+    "farcaster",
+    "memes",
+    "dev",
+    "food",
+    "ai",
+    "fitness",
+    "ethereum",
+    "art",
+    "purple",
+    "nouns",
+  ]);
 
-  const ChannelButton = ({ text }) => {
+  useEffect(() => {
+    // Fetch options for modal from ReplicatorAPI
+    async function fetchModalOptions() {
+      const options = Object.keys(ReplicatorApi.ChannelMapping).sort(); // Replace with actual API call
+      setModalOptions(options);
+    }
+
+    fetchModalOptions();
+  }, []);
+
+  const handleLongPress = (index) => {
+    setSelectedButtonIndex(index);
+    setModalVisible(true);
+  };
+
+  const handleOptionSelect = (option) => {
+    const updatedButtons = [...buttonsText];
+    updatedButtons[selectedButtonIndex] = option;
+    console.log("Updated buttons: " + updatedButtons);
+    setButtonsText(updatedButtons);
+    setModalVisible(false);
+    // Update the selected feed and refresh the casts
+    setSelectedFeed(option);
+    fetchCasts(option);
+  };
+
+  const ChannelButton = ({ index, text }) => {
     const handlePress = () => {
       setSelectedFeed(text);
       fetchCasts(text);
     };
+    const isSelected = text === selectedFeed;
     return (
-      <TouchableOpacity style={styles.button} onPress={handlePress}>
+      <TouchableOpacity
+        style={[styles.button, isSelected ? styles.selectedButton : null]}
+        onPress={handlePress}
+        onLongPress={() => handleLongPress(index)}
+      >
         <Text style={styles.buttonText}>{text}</Text>
       </TouchableOpacity>
     );
   };
 
-  const ButtonRow = () => {
-    const buttons = ["farcaster", "dev", "memes", "food", "Following"];
-
+  const ButtonRow = ({ buttons }) => {
     return (
       <View style={styles.row}>
         {buttons.map((buttonText, index) => (
-          <ChannelButton key={index} text={buttonText} />
+          <ChannelButton key={index} text={buttonText} index={index} />
         ))}
       </View>
+    );
+  };
+
+  const ModalComponent = () => {
+    return (
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isModalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <TouchableOpacity
+          style={styles.container}
+          activeOpacity={1}
+          onPressOut={() => {
+            setModalVisible(false);
+          }}
+        >
+          <TouchableWithoutFeedback>
+            <View style={styles.modalView}>
+              <FlatList
+                data={modalOptions}
+                renderItem={({ item }) => (
+                  <TouchableOpacity onPress={() => handleOptionSelect(item)}>
+                    <Text style={styles.modalText}>{item}</Text>
+                  </TouchableOpacity>
+                )}
+                keyExtractor={(item, index) => index.toString()}
+              />
+            </View>
+          </TouchableWithoutFeedback>
+        </TouchableOpacity>
+      </Modal>
     );
   };
 
@@ -187,8 +265,9 @@ export const FeedView = () => {
 
   return (
     <View style={styles.container}>
+      <ModalComponent />
       <View style={styles.buttonContainer}>
-        <ButtonRow />
+        <ButtonRow buttons={buttonsText} />
       </View>
       <FlatList
         style={styles.flatlist}
@@ -214,13 +293,11 @@ const styles = StyleSheet.create({
     marginLeft: 0,
   },
   buttonContainer: {
-    // Adjust the flex value as needed
-    flex: 0.2,
     alignItems: "center",
     justifyContent: "center",
-    paddingBottom: 30,
-    paddingTop: 18,
-    paddingLeft: 10,
+    paddingBottom: 5,
+    paddingTop: 5,
+    paddingHorizontal: 5,
   },
   flatlist: {
     paddingTop: 0,
@@ -269,11 +346,24 @@ const styles = StyleSheet.create({
   button: {
     alignItems: "center",
     justifyContent: "center",
-    width: 75,
     height: 30,
-    borderRadius: 50,
+    borderRadius: 20,
     backgroundColor: "#007bff",
-    margin: 2,
+    paddingHorizontal: 10,
+    marginHorizontal: 5,
+    marginVertical: 5,
+    minWidth: 40,
+  },
+  selectedButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    height: 30,
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    marginHorizontal: 5,
+    marginVertical: 5,
+    backgroundColor: "#ff69b4", // pinkish color for selected button
+    minWidth: 40,
   },
   buttonText: {
     color: "white",
@@ -282,6 +372,26 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
+    flexWrap: "wrap", // Allow wrapping of buttons
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
   },
 });

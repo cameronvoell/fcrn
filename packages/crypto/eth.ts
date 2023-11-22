@@ -22,6 +22,10 @@ export class Address {
     this.account = mnemonicToAccount(mnemonic);
   }
 
+  public getAddressString(): string {
+    return this.account.address;
+  }
+
   public async signKeyRequest(
     app_fid: number,
     key: Hash,
